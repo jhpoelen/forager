@@ -1,2 +1,2 @@
 # foragus
-build taxonomic checklists from external data sources
+build taxonomic checklists
