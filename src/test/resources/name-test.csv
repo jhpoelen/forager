@@ -1,4 +1,5 @@
 taxon name,expected commonized taxon name
-Phocidae,phocid
-Arthropoda,arthropod
+Phocidae,Phocids
+Arthropoda,arthropods
 Homo sapiens,Homo sapiens
+Carnivora,Carnivores
