@@ -3,7 +3,7 @@ import org.scalatest._
 
 import scala.io.Source
 
-class CommonizerSpec extends FlatSpec with Matchers {
+class CollectionInfoBuilder extends FlatSpec with Matchers {
 
   "A scientific taxon name" should "be transformed with english suffices" in {
     commonize("Phocidae") should be("phocid")
@@ -26,6 +26,7 @@ class CommonizerSpec extends FlatSpec with Matchers {
 
     val collectionInfo: Map[String, String] = mkCollectionInfo(commonName, scientificName, interactionType)
 
+    collectionInfo("title") should be( """True Seal Food""")
     collectionInfo("description") should be("what do true seals eat?\n" +
       "what do phocids eat?\n" +
       "what do true seals prey on?\n" +
@@ -36,8 +37,6 @@ class CommonizerSpec extends FlatSpec with Matchers {
       "phocid prey\n" +
       "true seal food\n" +
       "phocid food\n")
-
-    collectionInfo("title") should be( """True Seal Food""")
   }
 
   def mkCollectionInfo(commonName: String, scientificName: String, interactionType: String): Map[String, String] = {
