@@ -1,4 +1,3 @@
-import collection.mutable.Stack
 import org.scalatest._
 
 import scala.io.Source
@@ -6,8 +5,8 @@ import scala.io.Source
 class CollectionInfoBuilder extends FlatSpec with Matchers {
 
   "A scientific taxon name" should "be transformed with english suffices" in {
-    commonize("Phocidae") should be("phocid")
-    commonize("Arthropoda") should be("arthropod")
+    commonize("Phocidae") should be("Phocid")
+    commonize("Arthropoda") should be("Arthropod")
     commonize("somethingElse") should be("somethingElse")
   }
 
@@ -28,11 +27,11 @@ class CollectionInfoBuilder extends FlatSpec with Matchers {
 
     collectionInfo("title") should be( """True Seal Food""")
     collectionInfo("description") should be("what do true seals eat?\n" +
-      "what do phocids eat?\n" +
+      "what do Phocids eat?\n" +
       "what do true seals prey on?\n" +
-      "what do phocids prey on?\n" +
+      "what do Phocids prey on?\n" +
       "what do true seals hunt?\n" +
-      "what do phocids hunt?\n" +
+      "what do Phocids hunt?\n" +
       "true seal prey\n" +
       "phocid prey\n" +
       "true seal food\n" +
@@ -45,7 +44,7 @@ class CollectionInfoBuilder extends FlatSpec with Matchers {
     val interactionVerbs = Map("preysOn" -> List("eat", "prey on", "hunt"))
 
     val sentences = interactionVerbs(interactionType).map { verb => "what do " + commonName + "s " + verb + "?\nwhat do " + commonize(scientificName) + "s " + verb + "?\n"}
-    val phrases = interactionTargetNouns(interactionType).map { noun => commonName + " " + noun + "\n" + commonize(scientificName) + " " + noun + "\n"}
+    val phrases = interactionTargetNouns(interactionType).map { noun => commonName + " " + noun + "\n" + commonize(scientificName).toLowerCase + " " + noun + "\n"}
 
     Map("description" -> (sentences.reduce(_ + _) + phrases.reduce(_ + _))
       , "title" -> (commonName.split(" ").map(_.capitalize).mkString(" ") + " " + interactionTargetTitle(interactionType)))
@@ -54,9 +53,11 @@ class CollectionInfoBuilder extends FlatSpec with Matchers {
   def commonize(name: String): String = {
     val idae = """(.*)(idae)$""".r
     val oda = """(.*)(oda)$""".r
+    val ora = """(.*)(ora)$""".r
     name match {
-      case idae(prefix, suffix) => prefix.toLowerCase + "id"
-      case oda(prefix, suffix) => prefix.toLowerCase + "od"
+      case idae(prefix, suffix) => prefix + "id"
+      case oda(prefix, suffix) => prefix + "od"
+      case ora(prefix, suffix) => prefix + "ore"
       case _ => name
     }
   }
