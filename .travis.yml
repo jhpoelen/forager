@@ -5,4 +5,4 @@ addons:
   artifacts:
     debug: true
     paths:
-    - $(git ls-files -o | grep \.json$)
+    - $(git ls-files -o | grep \.json$ | tr "\n" ":")
