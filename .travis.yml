@@ -1,6 +1,10 @@
 language: scala
 scala:
   - 2.11.1
+sudo: false
+cache:
+  directories:
+      - $HOME/.ivy2
 addons:
   artifacts:
     debug: true
