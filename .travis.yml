@@ -7,6 +7,5 @@ cache:
       - $HOME/.ivy2
 addons:
   artifacts:
-    debug: true
     paths:
     - $(git ls-files -o | grep \.json$ | tr "\n" ":")
