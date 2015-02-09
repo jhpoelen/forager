@@ -53,8 +53,7 @@ object CollectionBuilder {
         preyIds map (preyId => {
           Json.obj(
             "collection_item_id" -> preyId,
-            "collection_item_type" -> "TaxonConcept",
-            "sort_field" -> "12"
+            "collection_item_type" -> "TaxonConcept"
           )
         })
       )
