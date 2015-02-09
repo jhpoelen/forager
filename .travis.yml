@@ -7,6 +7,7 @@ cache:
       - $HOME/.ivy2
 addons:
   artifacts:
+    upload-dir: travis-builds
     debug: true
     paths:
     - $(git ls-files -o | grep \.json$ | tr "\n" ":")
