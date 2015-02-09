@@ -7,5 +7,6 @@ cache:
       - $HOME/.ivy2
 addons:
   artifacts:
+    permissions: public
     paths:
     - $(git ls-files -o | grep \.json$ | tr "\n" ":")
