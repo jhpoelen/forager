@@ -8,16 +8,16 @@ import scala.io.Source
 class CollectionBuilder$Test extends FlatSpec with Matchers {
 
   "A scientific taxon name" should "be transformed with english suffices" in {
-    CollectionBuilder.commonize("Phocidae") should be("Phocid")
-    CollectionBuilder.commonize("Arthropoda") should be("Arthropoda")
-    CollectionBuilder.commonize("somethingElse") should be("somethingElse")
+    CollectionBuilder.commonize("Phocidae") should be(List("Phocid", "Phocidae"))
+    CollectionBuilder.commonize("Arthropoda") should be(List("Arthropoda"))
+    CollectionBuilder.commonize("somethingElse") should be(List("somethingElse"))
   }
 
   "A list of scientific names" should "be transformed into" in {
     val lines: Iterator[String] = Source.fromURL(getClass.getResource("/name-test.csv")).getLines()
     lines.drop(1) foreach (line => {
       val row = line.split(",")
-      CollectionBuilder.commonize(row(0)) should be(row(1))
+      CollectionBuilder.commonize(row(0)) should contain(row(1))
     })
   }
 
