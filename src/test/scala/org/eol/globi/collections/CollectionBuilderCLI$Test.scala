@@ -21,7 +21,7 @@ class CollectionBuilderCLI$Test extends FlatSpec with Matchers {
   }
 
   "calling commandline tool" should "return something useful" in {
-    val res = CollectionBuilderCLI.main(Array("7666"))
+    val res = CollectionBuilderCLI.main(Array("34543"))
     res should be(())
   }
 
