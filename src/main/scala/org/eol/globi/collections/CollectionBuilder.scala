@@ -64,7 +64,7 @@ object CollectionBuilder {
     List("""This collection was automatically generated from <a href="http://globalbioticinteractions.org">Global Biotic Interactions</a> (GloBI) data. Please visit <a href="""",
     """http://eol.org/pages/""",
      id,
-    """/data">this data page</a> for more detailed information about the GloBI interaction data and to find other trait data for """,
+    """/data">this EOL data page</a> for more detailed information about the GloBI interaction data and to find other trait data for """,
     name,
     """."""
     ).mkString("")

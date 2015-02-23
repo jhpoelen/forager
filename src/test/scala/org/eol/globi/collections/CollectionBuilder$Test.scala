@@ -28,7 +28,7 @@ class CollectionBuilder$Test extends FlatSpec with Matchers {
 
   "a collection" should "include a link to eol data page and scientific name" in {
     val rez: String = CollectionBuilder.mkCollectionReference( """7666""", """Phocidae""")
-    rez should be("""This collection was automatically generated from <a href="http://globalbioticinteractions.org">Global Biotic Interactions</a> (GloBI) data. Please visit <a href="http://eol.org/pages/7666/data">this data page</a> for more detailed information about the GloBI interaction data and to find other trait data for Phocidae.""")
+    rez should be("""This collection was automatically generated from <a href="http://globalbioticinteractions.org">Global Biotic Interactions</a> (GloBI) data. Please visit <a href="http://eol.org/pages/7666/data">this EOL data page</a> for more detailed information about the GloBI interaction data and to find other trait data for Phocidae.""")
   }
 
   "retrieve taxon info" should "include common name no match" in {
