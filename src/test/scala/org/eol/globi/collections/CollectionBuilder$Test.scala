@@ -26,6 +26,11 @@ class CollectionBuilder$Test extends FlatSpec with Matchers {
     rez should be(Some( """Phocidae""", """true seals"""))
   }
 
+  "a collection" should "include a link to eol data page and scientific name" in {
+    val rez: String = CollectionBuilder.mkCollectionReference( """7666""", """Phocidae""")
+    rez should be("""This collection was automatically generated from <a href="http://globalbioticinteractions.org">Global Biotic Interactions</a> (GloBI) data. Please visit <a href="http://eol.org/pages/7666/data">data page</a> for more detailed information about the GloBI interaction data and to find other trait data for Phocidae.""")
+  }
+
   "retrieve taxon info" should "include common name no match" in {
     val rez: Option[(String, String)] = CollectionBuilder.namesForTaxonExternalId( """xx7666""")
     rez should be(None)
@@ -70,6 +75,8 @@ phocidae food""")
     val collectionDescription = """collectionDescription"""
     val eolCollection: JsObject = CollectionBuilder.asEOLCollection(collectionName, collectionDescription, preyIds)
     eolCollection \\ "collection_item_id" should contain(JsString("2849458"))
+    eolCollection \\ "description" should contain(JsString("collectionDescription"))
+    eolCollection \\ "name" should contain(JsString("collectionName"))
   }
 
 }

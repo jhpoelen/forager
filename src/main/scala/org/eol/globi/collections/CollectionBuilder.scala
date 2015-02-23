@@ -60,6 +60,16 @@ object CollectionBuilder {
     )
   }
 
+  def mkCollectionReference(id: String, name: String): String = {
+    List("""This collection was automatically generated from <a href="http://globalbioticinteractions.org">Global Biotic Interactions</a> (GloBI) data. Please visit <a href="""",
+    """http://eol.org/pages/""",
+     id,
+    """/data">data page</a> for more detailed information about the GloBI interaction data and to find other trait data for """,
+    name,
+    """."""
+    ).mkString("")
+  }
+
   def mkCollectionInfo(commonName: String, scientificName: String, interactionType: String): (String, String) = {
     val interactionTargetTitle = Map("preysOn" -> "Food")
     val interactionTargetNouns = Map("preysOn" -> List("prey", "food"))

@@ -37,7 +37,8 @@ object CollectionBuilderCLI {
 
   def mkEOLCollection(taxonPageId: String, name: String, commonName: String): JsObject = {
     val (collectionName, collectionDescription) = CollectionBuilder.mkCollectionInfo(commonName, name, """preysOn""")
+    val collectionRef = CollectionBuilder.mkCollectionReference(taxonPageId, name)
     val preyIds: Stream[String] = CollectionBuilder.preyOf(taxonPageId)
-    CollectionBuilder.asEOLCollection(collectionName, collectionDescription, preyIds)
+    CollectionBuilder.asEOLCollection(collectionName, collectionRef + "\n" + collectionDescription , preyIds)
   }
 }
