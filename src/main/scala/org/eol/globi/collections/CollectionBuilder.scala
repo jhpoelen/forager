@@ -14,9 +14,7 @@ object CollectionBuilder {
 
     val rez = query.apply().map(row => {
       val commonNameList: Option[String] = row[Option[String]]("commonNames")
-      val commonName = firstEnglishCommonName(commonNameList)
-      val name: String = row[String]("name")
-      (name, commonName)
+      (row[String]("name"), firstEnglishCommonName(commonNameList))
     }
     )
     if (rez.isEmpty) None else Some(rez.head)
