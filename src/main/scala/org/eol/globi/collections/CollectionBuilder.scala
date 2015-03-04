@@ -5,7 +5,7 @@ import play.api.libs.json.{JsObject, Json, JsArray}
 
 object CollectionBuilder {
 
-  def namesForTaxonExternalId(taxonId: String): Option[(String, String)] = {
+  def namesForTaxonExternalId(taxonId: String): Option[(String, Option[String])] = {
     val language: String = """@en"""
     val query = Cypher(
       """START taxon = node:taxons(externalId='EOL:""" + taxonId +
@@ -13,14 +13,28 @@ object CollectionBuilder {
           | RETURN taxon.name as name, taxon.commonNames? as commonNames""".stripMargin)
 
     val rez = query.apply().map(row => {
-      val commonName: String = row[String]("commonNames")
-        .split( """\|""").filter(_.contains(language))
-        .map(name => name.replaceAll(language, """""").trim).head
+      val commonNameList: Option[String] = row[Option[String]]("commonNames")
+      val commonName = firstEnglishCommonName(commonNameList)
       val name: String = row[String]("name")
       (name, commonName)
     }
     )
     if (rez.isEmpty) None else Some(rez.head)
+  }
+
+  def firstEnglishCommonName(commonNameList: Option[String]): Option[String] = {
+    parseCommonNames(commonNameList).flatten.filter(_._2 == "en") map {
+      _._1
+    } headOption
+  }
+
+  def parseCommonNames(commonNamesString: Option[String]): Array[Option[(String, String)]] = {
+    val names: Array[String] = commonNamesString.getOrElse("").split( """\s+\|\s+""")
+    val pattern = """(.*)@(\w\w)""".r
+    names map {
+      case pattern(name, lang) => Some(name.trim, lang)
+      case _ => None
+    }
   }
 
   implicit def connection: Neo4jREST = {
@@ -61,28 +75,33 @@ object CollectionBuilder {
   }
 
   def mkCollectionReference(id: String, name: String): String = {
-    List("""This collection was automatically generated from <a href="http://globalbioticinteractions.org">Global Biotic Interactions</a> (GloBI) data. Please visit <a href="""",
-    """http://eol.org/pages/""",
-     id,
-    """/data">this EOL data page</a> for more detailed information about the GloBI interaction data and to find other trait data for """,
-    name,
-    """."""
+    List( """This collection was automatically generated from <a href="http://globalbioticinteractions.org">Global Biotic Interactions</a> (GloBI) data. Please visit <a href="""",
+      """http://eol.org/pages/""",
+      id,
+      """/data">this EOL data page</a> for more detailed information about the GloBI interaction data and to find other trait data for """,
+      name,
+      """."""
     ).mkString("")
   }
 
-  def mkCollectionInfo(commonName: String, scientificName: String, interactionType: String): (String, String) = {
+  def mkCollectionInfo(commonName: Option[String], scientificName: String, interactionType: String): (String, String) = {
     val interactionTargetTitle = Map("preysOn" -> "Food")
     val interactionTargetNouns = Map("preysOn" -> List("prey", "food"))
     val interactionVerbs = Map("preysOn" -> List("eat", "prey on", "hunt"))
 
-    val pluralNames = List(if (commonName.endsWith("s")) commonName else commonName + "s") ++ commonizePlural(scientificName)
-    val singularNames = List(commonName) ++ commonize(scientificName)
+    val pluralCommonNames = List(commonName).flatten.map {
+      name => if (name.endsWith("s")) name else name + "s"
+    }
+    val pluralNames = pluralCommonNames ++ commonizePlural(scientificName)
+    val singularNames = List(commonName).flatten ++ commonize(scientificName)
     val sentences = interactionVerbs(interactionType).map {
-      verb => pluralNames.map { name => "what do " + name.toLowerCase + " " + verb + "?"}}.flatten
+      verb => pluralNames.map { name => "what do " + name.toLowerCase + " " + verb + "?"}
+    }.flatten
     val phrases = interactionTargetNouns(interactionType).map {
-      noun => singularNames.map { name => name.toLowerCase + " " + noun}}.flatten
+      noun => singularNames.map { name => name.toLowerCase + " " + noun}
+    }.flatten
 
-    val name: String = commonName.split(" ").map(_.capitalize).mkString(" ") + " " + interactionTargetTitle(interactionType)
+    val name: String = List(commonName, Some(scientificName)).flatten.head.split(" ").map(_.capitalize).mkString(" ") + " " + interactionTargetTitle(interactionType)
     val description: String = (sentences ++ phrases).mkString("\n")
     (name, description)
   }

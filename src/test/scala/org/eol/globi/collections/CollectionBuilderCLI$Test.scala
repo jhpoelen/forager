@@ -34,12 +34,13 @@ class CollectionBuilderCLI$Test extends FlatSpec with Matchers {
     val lines: Iterator[String] = Source.fromURL(getClass.getResource("/popular_eol_page_ids.csv")).getLines()
     lines.foreach(line => {
       val pageId: String = line.trim
+      println("collection [" + pageId + "] building...")
       val col: Option[JsObject] = CollectionBuilderCLI.mkEOLCollectionOrNone(pageId)
       col match {
         case obj:Some[JsObject] =>
           val path: Path = Paths.get("target/" + pageId + ".json")
           Files.write(path, obj.get.toString().getBytes(StandardCharsets.UTF_8))
-          println("wrote [" + path.toAbsolutePath + "]")
+          println("collection [" + pageId + "] written to [" + path.toAbsolutePath + "].")
         case None =>
 
       }

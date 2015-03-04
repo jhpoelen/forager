@@ -22,22 +22,55 @@ class CollectionBuilder$Test extends FlatSpec with Matchers {
   }
 
   "retrieve taxon info" should "include common name" in {
-    val rez: Option[(String, String)] = CollectionBuilder.namesForTaxonExternalId( """7666""")
-    rez should be(Some( """Phocidae""", """true seals"""))
+    val rez: Option[(String, Option[String])] = CollectionBuilder.namesForTaxonExternalId( """7666""")
+    rez should be(Some( """Phocidae""", Some("""true seals""")))
+  }
+
+  "retrieve taxon info" should "with taxon w/o common name" in {
+    val rez: Option[(String, Option[String])] = CollectionBuilder.namesForTaxonExternalId( """11681""")
+    rez should be(Some( """Spirogyra""", None))
+  }
+
+  "parsing common names" should "split string and language" in {
+    val commonNames: Array[Option[(String, String)]] = CollectionBuilder.parseCommonNames(Some( """one@en | zwei@de"""))
+    commonNames should contain(Some(("one", "en")))
+    commonNames should contain(Some(("zwei", "de")))
+
+    commonNames.flatten should contain("one", "en")
+    commonNames.flatten.filter(_._2 == "en") should not(contain("zwei", "de"))
+  }
+
+  "parsing an invalid common name" should "split string and language" in {
+    val commonNames: Array[Option[(String, String)]] = CollectionBuilder.parseCommonNames(Some( """bla"""))
+    commonNames should contain(None)
+    commonNames.flatten should be(empty)
+    commonNames.flatten.filter(_._2 == "en") should be(empty)
+  }
+
+  "parsing an none common name" should "split string and language" in {
+    val commonNames: Array[Option[(String, String)]] = CollectionBuilder.parseCommonNames(None)
+    commonNames should contain(None)
+    commonNames.flatten should be(empty)
+    commonNames.flatten.filter(_._2 == "en") should be(empty)
+  }
+
+  "finding first english common name" should "return the name" in {
+    val englishName = CollectionBuilder.firstEnglishCommonName(Some("""one @en | two @en"""))
+    englishName should be(Some("one"))
   }
 
   "a collection" should "include a link to eol data page and scientific name" in {
     val rez: String = CollectionBuilder.mkCollectionReference( """7666""", """Phocidae""")
-    rez should be("""This collection was automatically generated from <a href="http://globalbioticinteractions.org">Global Biotic Interactions</a> (GloBI) data. Please visit <a href="http://eol.org/pages/7666/data">this EOL data page</a> for more detailed information about the GloBI interaction data and to find other trait data for Phocidae.""")
+    rez should be( """This collection was automatically generated from <a href="http://globalbioticinteractions.org">Global Biotic Interactions</a> (GloBI) data. Please visit <a href="http://eol.org/pages/7666/data">this EOL data page</a> for more detailed information about the GloBI interaction data and to find other trait data for Phocidae.""")
   }
 
   "retrieve taxon info" should "include common name no match" in {
-    val rez: Option[(String, String)] = CollectionBuilder.namesForTaxonExternalId( """xx7666""")
+    val rez: Option[(String, Option[String])] = CollectionBuilder.namesForTaxonExternalId( """xx7666""")
     rez should be(None)
   }
 
   "create a description" should "include a human readable text" in {
-    val commonName = """true seals"""
+    val commonName = Some( """true seals""")
     val scientificName = """Phocidae"""
     val interactionType = """preysOn"""
 
@@ -61,6 +94,26 @@ phocid food
 phocidae food""")
   }
 
+  "create a description" should "include a human readable text without commonname" in {
+    val commonName = None
+    val scientificName = """Phocidae"""
+    val interactionType = """preysOn"""
+
+    val (collectionName, collectionDescription) = CollectionBuilder.mkCollectionInfo(commonName, scientificName, interactionType)
+
+    collectionName should be( """Phocidae Food""")
+    collectionDescription should be( """what do phocids eat?
+what do phocidae eat?
+what do phocids prey on?
+what do phocidae prey on?
+what do phocids hunt?
+what do phocidae hunt?
+phocid prey
+phocidae prey
+phocid food
+phocidae food""")
+  }
+
   "a lucene query" should "be nicely created" in {
     val luceneQuery: String = CollectionBuilder.buildLucenePathQuery(Seq("327955", "7666"))
     luceneQuery should be( """'path:EOL\\:327955 OR path:EOL\\:7666'""")
@@ -68,7 +121,7 @@ phocidae food""")
   }
 
   "a query against remote neo4j" should "return something" in {
-    val preyIds: Stream[String] = CollectionBuilder.preyOf("""327955""")
+    val preyIds: Stream[String] = CollectionBuilder.preyOf( """327955""")
     preyIds should contain( """2849458""")
 
     val collectionName = """collectionName"""
