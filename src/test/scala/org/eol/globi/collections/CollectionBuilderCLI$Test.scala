@@ -34,22 +34,22 @@ class CollectionBuilderCLI$Test extends FlatSpec with Matchers {
   "calling commandline tool" should "using provided eol id list" in {
     val lines: Iterator[String] = Source.fromURL(getClass.getResource("/popular_eol_page_ids.csv")).getLines()
     Files.createDirectories(Paths.get("target/collections/"))
-    val files = lines.map(line => {
+    val files = lines.zipWithIndex.map { case (line, index) => {
+      if (index % 10 == 0) println("")
       val pageId: String = line.trim
-      println("collection [" + pageId + "] building...")
       val col: Option[JsObject] = CollectionBuilderCLI.mkEOLCollectionOrNone(pageId)
       col match {
         case obj: Some[JsObject] =>
-
           val path: Path = Paths.get("target/collections/" + pageId + ".json")
           Files.write(path, obj.get.toString().getBytes(StandardCharsets.UTF_8))
-          println("collection [" + pageId + "] written to [" + path.toAbsolutePath + "].")
+          print(pageId + " ok. ")
           Some(path.toString)
-        case None => None
-
+        case None =>
+          print(pageId + " empty. ")
+          None
       }
     }
-    )
+    }
     val archivePath: String = Paths.get("target/collections.zip").toAbsolutePath.toString
     zip(archivePath, files)
     println("collection files archived in [" + archivePath + "].")

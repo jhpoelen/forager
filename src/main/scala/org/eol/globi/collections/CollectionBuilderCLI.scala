@@ -30,7 +30,6 @@ object CollectionBuilderCLI {
       case Some((name, commonName)) =>
         Some(mkEOLCollection(taxonPageId, name, commonName))
       case None =>
-        System.err.println( """no info found for [""" + taxonPageId + """]""")
         None
     }
   }
