@@ -10,6 +10,7 @@ object CollectionBuilder {
     val query = Cypher(
       """START taxon = node:taxons(externalId='EOL:""" + taxonId +
         """')
+          | WHERE has(taxon.rank) AND taxon.rank =~ '(.*[Ss]pecies)|(.*[Gg]enus)|(.*[Ff]amily)'
           | RETURN taxon.name as name, taxon.commonNames? as commonNames""".stripMargin)
 
     val rez = query.apply().map(row => {
