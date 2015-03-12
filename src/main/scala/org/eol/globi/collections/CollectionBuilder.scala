@@ -101,7 +101,7 @@ object CollectionBuilder {
     }.flatten
 
     val name: String = List(commonName, Some(scientificName)).flatten.head.split(" ").map(_.capitalize).mkString(" ") + " " + interactionTargetTitle(interactionType)
-    val description: String = (sentences ++ phrases).mkString("\n")
+    val description: String = (sentences ++ phrases).mkString(" ")
     (name, description)
   }
 

@@ -91,7 +91,7 @@ phocid prey
 phocidae prey
 true seals food
 phocid food
-phocidae food""")
+phocidae food""".replace("\n", " "))
   }
 
   "create a description" should "include a human readable text without commonname" in {
@@ -111,7 +111,7 @@ what do phocidae hunt?
 phocid prey
 phocidae prey
 phocid food
-phocidae food""")
+phocidae food""".replace("\n", " "))
   }
 
   "a lucene query" should "be nicely created" in {
