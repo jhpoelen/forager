@@ -5,7 +5,7 @@ import play.api.libs.json.{JsObject, Json, JsArray}
 
 object CollectionBuilder {
 
-  def namesForTaxonExternalId(taxonId: String): Option[(String, Option[String])] = {
+  def namesForTaxonExternalId(taxonId: Long): Option[(String, Option[String])] = {
     val language: String = """@en"""
     val query = Cypher(
       """START taxon = node:taxons(externalId='EOL:""" + taxonId +
@@ -37,10 +37,10 @@ object CollectionBuilder {
   }
 
   implicit def connection: Neo4jREST = {
-    Neo4jREST("api.globalbioticinteractions.org", 7474, "/db/data/")
+    Neo4jREST("neo4j.globalbioticinteractions.org", 80, "/db/data/")
   }
 
-  def preyOf(id: String): Stream[String] = {
+  def preyOf(id: Long): Stream[Long] = {
     val query = Cypher(
       """START taxon = node:taxonPaths(""" + buildLucenePathQuery(Seq(id)) +
         """)
@@ -48,32 +48,32 @@ object CollectionBuilder {
           | WHERE has(otherTaxon.externalId) AND otherTaxon.externalId =~ 'EOL:.*'
           | RETURN replace(otherTaxon.externalId, "EOL:", "") as preyId""".stripMargin)
     query.apply().map(row => {
-      row[String]("preyId")
+      row[String]("preyId").toLong
     })
   }
 
 
-  def buildLucenePathQuery(taxonConceptIds: Seq[String]): String = {
+  def buildLucenePathQuery(taxonConceptIds: Seq[Long]): String = {
     val luceneQuery =
-      taxonConceptIds.map(id => """path:EOL\\:""" + id).mkString("'", " OR ", "'")
+      taxonConceptIds.map(id => """path:EOL\\:""" + id.toString).mkString("'", " OR ", "'")
     luceneQuery
   }
 
-  def asEOLCollection(name: String, description: String, preyIds: Seq[String]): JsObject = {
-    Json.obj("name" -> name
+  def asEOLCollection(name: String, description: String, preyIds: Seq[Long]): JsObject = {
+    Json.obj("collection" -> Json.obj("name" -> name
       , "description" -> description
-      , "collection_items" -> Json.arr(
+      , "collection_items" -> (
         preyIds map (preyId => {
           Json.obj(
-            "collection_item_id" -> preyId,
-            "collection_item_type" -> "TaxonConcept"
+            "collected_item_type" -> "TaxonConcept",
+            "collected_item_id" -> preyId
           )
         })
-      )
-    )
+        )
+    ))
   }
 
-  def mkCollectionReference(id: String, name: String): String = {
+  def mkCollectionReference(id: Long, name: String): String = {
     List( """This collection was automatically generated from <a href="http://globalbioticinteractions.org">Global Biotic Interactions</a> (GloBI) data. Please visit <a href="""",
       """http://eol.org/pages/""",
       id,

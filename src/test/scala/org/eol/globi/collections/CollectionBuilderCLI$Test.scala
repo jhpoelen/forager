@@ -36,7 +36,7 @@ class CollectionBuilderCLI$Test extends FlatSpec with Matchers {
     Files.createDirectories(Paths.get("target/collections/"))
     val files = lines.zipWithIndex.map { case (line, index) => {
       if (index % 10 == 0) println("")
-      val pageId: String = line.trim
+      val pageId: Long = line.trim.toLong
       val col: Option[JsObject] = CollectionBuilderCLI.mkEOLCollectionOrNone(pageId)
       col match {
         case obj: Some[JsObject] =>

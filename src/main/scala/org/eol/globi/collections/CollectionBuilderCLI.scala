@@ -19,13 +19,13 @@ object CollectionBuilderCLI {
     }
 
     parser.parse(args, Config()) map { config =>
-      val taxonPageId: String = config.pageIds.head
+      val taxonPageId: Long = config.pageIds.head.toLong
       val collectionJson: Option[JsObject] = mkEOLCollectionOrNone(taxonPageId)
       println (collectionJson.getOrElse(""))
     }
   }
 
-  def mkEOLCollectionOrNone(taxonPageId: String): Option[JsObject] = {
+  def mkEOLCollectionOrNone(taxonPageId: Long): Option[JsObject] = {
     CollectionBuilder.namesForTaxonExternalId(taxonPageId) match {
       case Some((name, commonName)) =>
         Some(mkEOLCollection(taxonPageId, name, commonName))
@@ -34,10 +34,10 @@ object CollectionBuilderCLI {
     }
   }
 
-  def mkEOLCollection(taxonPageId: String, name: String, commonName: Option[String]): JsObject = {
+  def mkEOLCollection(taxonPageId: Long, name: String, commonName: Option[String]): JsObject = {
     val (collectionName, collectionDescription) = CollectionBuilder.mkCollectionInfo(commonName, name, """preysOn""")
     val collectionRef = CollectionBuilder.mkCollectionReference(taxonPageId, name)
-    val preyIds: Stream[String] = CollectionBuilder.preyOf(taxonPageId)
+    val preyIds: Stream[Long] = CollectionBuilder.preyOf(taxonPageId)
     CollectionBuilder.asEOLCollection(collectionName, collectionRef + "\n" + collectionDescription , preyIds)
   }
 }
