@@ -2,7 +2,7 @@ package org.eol.globi.collections
 
 import play.api.libs.json.JsObject
 
-case class Config(verbose: Boolean = false, pageIds: Seq[String] = Seq())
+case class Config(verbose: Boolean = false, pageIds: Seq[Long] = Seq())
 
 object CollectionBuilderCLI {
 
@@ -13,13 +13,13 @@ object CollectionBuilderCLI {
         c.copy(verbose = true)
       } text "verbose increases the log levels"
       help("help") text "creates EOL collection json objects for given page ids"
-      arg[String]("eolPageId") maxOccurs 1 minOccurs 1 required() action { (x, c) =>
+      arg[Long]("eolPageId") maxOccurs 1 minOccurs 1 required() action { (x, c) =>
         c.copy(pageIds = c.pageIds :+ x)
       } text "please specify page id (e.g. 7666 for Phocidae)"
     }
 
     parser.parse(args, Config()) map { config =>
-      val taxonPageId: Long = config.pageIds.head.toLong
+      val taxonPageId: Long = config.pageIds.head
       val collectionJson: Option[JsObject] = mkEOLCollectionOrNone(taxonPageId)
       println (collectionJson.getOrElse(""))
     }
