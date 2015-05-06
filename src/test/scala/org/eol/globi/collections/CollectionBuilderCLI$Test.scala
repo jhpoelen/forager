@@ -21,6 +21,11 @@ class CollectionBuilderCLI$Test extends FlatSpec with Matchers {
     res should be(())
   }
 
+  "calling commandline with empty string" should "return something useful" in {
+    val res = CollectionBuilderCLI.main(Array(""))
+    res should be(())
+  }
+
   "calling commandline tool" should "return something useful" in {
     val res = CollectionBuilderCLI.main(Array("34543"))
     res should be(())
@@ -36,16 +41,16 @@ class CollectionBuilderCLI$Test extends FlatSpec with Matchers {
     Files.createDirectories(Paths.get("target/collections/"))
     val files = lines.zipWithIndex.map { case (line, index) => {
       if (index % 10 == 0) println("")
-      val pageId: Long = line.trim.toLong
-      val col: Option[JsObject] = CollectionBuilderCLI.mkEOLCollectionOrNone(pageId)
+      val trimmedLine: String = line.trim
+      val col: Option[JsObject] = if (trimmedLine.length == 0) None else CollectionBuilderCLI.mkEOLCollectionOrNone(trimmedLine.toLong)
       col match {
         case obj: Some[JsObject] =>
-          val path: Path = Paths.get("target/collections/" + pageId + ".json")
+          val path: Path = Paths.get("target/collections/" + trimmedLine + ".json")
           Files.write(path, obj.get.toString().getBytes(StandardCharsets.UTF_8))
-          print(pageId + " ok. ")
+          print(trimmedLine + " ok. ")
           Some(path.toString)
         case None =>
-          print(pageId + " empty. ")
+          print(trimmedLine + " empty. ")
           None
       }
     }
